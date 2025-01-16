@@ -410,8 +410,6 @@ int main(void) {
             #endif // CRYPTO_EXAMPLE
 
             // Print the boot flag
-            // TODO: Remove this from your design
-            boot_flag();
             list_channels();
             break;
 

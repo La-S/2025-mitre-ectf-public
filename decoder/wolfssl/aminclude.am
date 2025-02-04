@@ -1,0 +1,5 @@
+
+# generated automatically by configure from AX_AUTOMAKE_MACROS
+# on Tue Feb  4 11:49:07 CST 2025
+
+AM_MAKEFLAGS += -j11 

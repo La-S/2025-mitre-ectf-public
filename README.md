@@ -429,3 +429,8 @@ python -m ectf25.tv.run localhost 2001 /dev/tty.usbmodem11302
 ```
 python -m ectf25.tv.run localhost 2001 COM12
 ```
+
+
+## Copyright Info
+This work is distributed under GPLv3, though it was originally licensed under Apache-2.0, which is GPLv3 compatible.
+Some code is from The MITRE Corporation under Apache-2.0, which is GPLv3 compatible.

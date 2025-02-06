@@ -70,45 +70,35 @@ int encrypt_sym(uint8_t *plaintext, size_t len, uint8_t *key, uint8_t *ciphertex
 int decrypt_sym(uint8_t *ciphertext, size_t len, uint8_t *key, uint8_t *plaintext) {
     Aes ctx; // Context for decryption
     int result; // Library result
-    print_debug("here");
 
     // Ensure valid length
     if (len <= 0 || len % BLOCK_SIZE)
         return -1;
-    print_debug("ther");
 
     // Set the key for decryption
-    // result = wc_AesSetKey(&ctx, key, 16, NULL, AES_DECRYPTION);
     result = wc_AesGcmSetKey(&ctx, key, 16);
     if (result != 0)
         return result; // Report error
 
-    print_debug("no error yet");
+    byte iv[12] = {171, 171, 171, 171, 171, 171, 171, 171, 171, 171, 171, 171};
+    byte authTag[12];
+    byte authIn[12];
+    result =  wc_AesGcmDecrypt(
+        &ctx,
+        plaintext,
+        ciphertext,
+        len,
+        iv,
+        12,
+        authTag,
+        sizeof(authTag),
+        authIn,
+        sizeof(authIn)
+    );
+    // pass last block in as initialization vector.
+    if (result != 0)
+        return result; // Report error // to-do, figure out why this keeps returning an error
 
-    // Decrypt each block
-    for (int i = 0; i < len - 1; i += BLOCK_SIZE) {
-        print_debug("almost!");
-        // result = wc_AesDecryptDirect(&ctx, plaintext + i, ciphertext + i);
-        byte iv[12] = {171, 171, 171, 171, 171, 171, 171, 171, 171, 171, 171, 171};
-        byte authTag[12];
-        byte authIn[12];
-        print_debug("almost! close");
-        result =  wc_AesGcmDecrypt(
-            &ctx,
-            plaintext,
-            ciphertext,
-            len,
-            iv,
-            12,
-            authTag,
-            sizeof(authTag),
-            authIn,
-            sizeof(authIn)
-        );
-        print_debug("Goood!");
-        if (result != 0)
-            return result; // Report error
-    }
     return 0;
 }
 

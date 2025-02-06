@@ -72,6 +72,7 @@ class Encoder:
         logger.warning("CipherText: ", cipher_text)
         plaintext = self.aesgcm.decrypt(iv, cipher_text, None)
         print(plaintext)
+        print(len(frame))
 
         # cipher_text = self.aesecb.encrypt()
 

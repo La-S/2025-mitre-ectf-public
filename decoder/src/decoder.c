@@ -47,6 +47,7 @@
 #define MAX_CHANNEL_COUNT 8
 #define EMERGENCY_CHANNEL 0
 #define FRAME_SIZE 64
+#define TAG_SIZE 16
 #define DEFAULT_CHANNEL_TIMESTAMP 0xFFFFFFFFFFFFFFFF
 // This is a canary value so we can confirm whether this decoder has booted before
 #define FLASH_FIRST_BOOT 0xDEADBEEF
@@ -233,7 +234,7 @@ int decode(pkt_len_t pkt_len, frame_packet_t *new_frame) {
     channel_id_t channel;
 
     // Frame size is the size of the packet minus the size of non-frame elements
-    frame_size = pkt_len - (sizeof(new_frame->channel) + sizeof(new_frame->timestamp));
+    frame_size = pkt_len - (sizeof(new_frame->channel) + sizeof(new_frame->timestamp)) - TAG_SIZE;
     channel = new_frame->channel;
 
     // The reference design doesn't use the timestamp, but you may want to in your design
@@ -256,8 +257,12 @@ int decode(pkt_len_t pkt_len, frame_packet_t *new_frame) {
         /* The reference design doesn't need any extra work to decode, but your design likely will.
         *  Do any extra decoding here before returning the result to the host. */
         uint8_t key[KEY_SIZE] = {129, 186, 203, 50, 132, 39, 232, 200, 178, 206, 57, 56, 130, 217, 171, 205};
-        uint8_t decrypted[BLOCK_SIZE];
-        int status = decrypt_sym(new_frame->data, BLOCK_SIZE, key, decrypted);
+
+        // THIS SEEMS VERY INSECURE: sizeof(new_frame->data)
+        int size_of_incoming_frame = sizeof(new_frame->data);
+        uint8_t decrypted[size_of_incoming_frame]; // Seems insecure. Maybe make it be 64, then trim it later?
+
+        int status = decrypt_sym(new_frame->data, size_of_incoming_frame, key, decrypted);
         if (status == 0){
             print_debug("success");
             char output_buf[128] = {0};
@@ -267,7 +272,13 @@ int decode(pkt_len_t pkt_len, frame_packet_t *new_frame) {
         } else {
             print_debug("fail");
         }
-        write_packet(DECODE_MSG, decrypted, frame_size);
+
+        uint8_t decrypted_unpadded[frame_size];
+        for(int i = 0; i < frame_size; i++) {
+            decrypted_unpadded[i] = decrypted[i];
+        }
+
+        write_packet(DECODE_MSG, decrypted_unpadded, frame_size);
         return 0;
     } else {
         STATUS_LED_RED();

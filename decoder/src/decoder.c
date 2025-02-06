@@ -126,7 +126,7 @@ timestamp_t latest_timestamp;
  *  @param channel The channel number to be checked.
  *  @return 1 if the the decoder is subscribed to the channel.  0 if not.
 */
-int is_subscribed(channel_id_t channel) {
+int is_subscribed(channel_id_t channel, timestamp_t incoming_timestamp) {
     // Check if this is an emergency broadcast message
     if (channel == EMERGENCY_CHANNEL) {
         return 1;
@@ -134,7 +134,11 @@ int is_subscribed(channel_id_t channel) {
     // Check if the decoder has has a subscription
     for (int i = 0; i < MAX_CHANNEL_COUNT; i++) {
         if (decoder_status.subscribed_channels[i].id == channel && decoder_status.subscribed_channels[i].active) {
-            return 1;
+            if (decoder_status.subscribed_channels[i].start_timestamp <= incoming_timestamp && decoder_status.subscribed_channels[i].end_timestamp >= incoming_timestamp) {
+                return 1;
+            } else {
+                return 0;
+            }
         }
     }
     return 0;
@@ -245,7 +249,7 @@ int decode(pkt_len_t pkt_len, frame_packet_t *new_frame) {
 
     // Check that we are subscribed to the channel...
     print_debug("Checking subscription\n");
-    if (is_subscribed(channel)) {
+    if (is_subscribed(channel, incoming_timestamp)) {
         latest_timestamp = incoming_timestamp;
         has_latest_timestamp = true;
         print_debug("Subscription Valid\n");
@@ -257,7 +261,7 @@ int decode(pkt_len_t pkt_len, frame_packet_t *new_frame) {
         STATUS_LED_RED();
         sprintf(
             output_buf,
-            "Receiving unsubscribed channel data.  %u\n", channel);
+            "Receiving unsubscribed channel data or an unsubcribed timestamp.  %u\n", channel);
         print_error(output_buf);
         return -1;
     }

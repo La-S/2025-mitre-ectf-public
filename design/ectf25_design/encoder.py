@@ -13,6 +13,9 @@ Copyright: Copyright (c) 2025 The MITRE Corporation
 import argparse
 import struct
 import json
+from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+from cryptography.hazmat.primitives.ciphers.aead import AESGCM
+import os
 
 
 class Encoder:
@@ -28,10 +31,14 @@ class Encoder:
 
         # Load the json of the secrets file
         secrets = json.loads(secrets)
+        self.aes_key = bytes.fromhex(str(secrets["aes_key"]))
 
-        # Load the example secrets for use in Encoder.encode
-        # This will be "EXAMPLE" in the reference design"
-        self.some_secrets = secrets["some_secrets"]
+        self.aesgcm = AESGCM(self.aes_key)
+        # iv = os.urandom(12)
+        # cipher_text = aesgcm.encrypt(iv,b"heyoheyo", None)
+        # print(cipher_text)
+        # plaintext = aesgcm.decrypt(iv, cipher_text, None)
+        # print(plaintext)
 
     def encode(self, channel: int, frame: bytes, timestamp: int) -> bytes:
         """The frame encoder function
@@ -54,7 +61,15 @@ class Encoder:
         # TODO: encode the satellite frames so that they meet functional and
         #  security requirements
 
-        return struct.pack("<IQ", channel, timestamp) + frame
+        iv = os.urandom(12)
+        cipher_text = self.aesgcm.encrypt(iv,b"heyoheyo", iv)
+        print(cipher_text)
+        # plaintext = aesgcm.decrypt(iv, cipher_text, None)
+        # print(plaintext)
+
+
+        # I don't love sending this as an array of chars. We need to be very careful when decoding this...
+        return struct.pack("<sQ", cipher_text, timestamp)# channel, timestamp) + frame # formats here: https://docs.python.org/3/library/struct.html
 
 
 def main():

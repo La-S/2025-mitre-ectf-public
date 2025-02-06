@@ -37,7 +37,7 @@ def gen_secrets(channels: list[int]) -> bytes:
     # The secrets file will never be shared with attackers
     secrets = {
         "channels": channels,
-        "some_secrets": "EXAMPLE",
+        "aes_key":"81BACB328427E8C8B2CE393882D9ABCD"
     }
 
     # NOTE: if you choose to use JSON for your file type, you will not be able to

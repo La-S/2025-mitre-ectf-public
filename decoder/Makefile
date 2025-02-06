@@ -255,8 +255,9 @@ ifeq ($(CRYPTO_EXAMPLE), 1)
 PROJ_CFLAGS += -DMXC_ASSERT_ENABLE
 # eCTF Crypto Example - WolfSSL Flags
 PROJ_CFLAGS += -DCRYPTO_EXAMPLE=1
+# PROJ_CFLAGS += -DHAVE_AESGCM
 PROJ_CFLAGS += -DNO_WOLFSSL_DIR
-PROJ_CFLAGS += -DWOLFSSL_AES_DIRECT
+# PROJ_CFLAGS += -DWOLFSSL_AES_DIRECT
 PROJ_CFLAGS += -DSINGLE_THREADED
 # From https://www.wolfssl.com/documentation/manuals/wolfssl/chapter02.html#building-with-gcc-arm
 PROJ_CFLAGS += -DHAVE_PK_CALLBACKS                                                               

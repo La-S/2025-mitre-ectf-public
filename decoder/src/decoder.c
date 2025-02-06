@@ -255,7 +255,19 @@ int decode(pkt_len_t pkt_len, frame_packet_t *new_frame) {
         print_debug("Subscription Valid\n");
         /* The reference design doesn't need any extra work to decode, but your design likely will.
         *  Do any extra decoding here before returning the result to the host. */
-        write_packet(DECODE_MSG, new_frame->data, frame_size);
+        uint8_t key[KEY_SIZE] = {129, 186, 203, 50, 132, 39, 232, 200, 178, 206, 57, 56, 130, 217, 171, 205};
+        uint8_t decrypted[BLOCK_SIZE];
+        int status = decrypt_sym(new_frame->data, BLOCK_SIZE, key, decrypted);
+        if (status == 0){
+            print_debug("success");
+            char output_buf[128] = {0};
+            sprintf(output_buf, "Decrypted message: %s\n", decrypted);
+            print_debug(output_buf);
+            print_debug((char *) decrypted);
+        } else {
+            print_debug("fail");
+        }
+        write_packet(DECODE_MSG, decrypted, frame_size);
         return 0;
     } else {
         STATUS_LED_RED();

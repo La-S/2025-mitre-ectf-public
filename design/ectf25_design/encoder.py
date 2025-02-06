@@ -16,6 +16,8 @@ import json
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 import os
+from loguru import logger
+
 
 
 class Encoder:
@@ -34,6 +36,7 @@ class Encoder:
         self.aes_key = bytes.fromhex(str(secrets["aes_key"]))
 
         self.aesgcm = AESGCM(self.aes_key)
+        # self.aesecb = AESECB(self.aes_key)
         # iv = os.urandom(12)
         # cipher_text = aesgcm.encrypt(iv,b"heyoheyo", None)
         # print(cipher_text)
@@ -61,11 +64,16 @@ class Encoder:
         # TODO: encode the satellite frames so that they meet functional and
         #  security requirements
 
-        iv = os.urandom(12)
-        cipher_text = self.aesgcm.encrypt(iv,b"heyoheyo", iv)
-        print(cipher_text)
-        # plaintext = aesgcm.decrypt(iv, cipher_text, None)
-        # print(plaintext)
+        # when we want to get fancy, we can use this...
+        iv = bytes.fromhex(str("ABABABABABABABABABABABAB"))#  os.urandom(12)
+        cipher_text = self.aesgcm.encrypt(iv, frame, None)
+        print("CIPHER TEXT", cipher_text)
+        print("CIPHER TEXT", cipher_text.hex())
+        logger.warning("CipherText: ", cipher_text)
+        plaintext = self.aesgcm.decrypt(iv, cipher_text, None)
+        print(plaintext)
+
+        # cipher_text = self.aesecb.encrypt()
 
 
         # I don't love sending this as an array of chars. We need to be very careful when decoding this...

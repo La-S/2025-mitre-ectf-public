@@ -14,6 +14,7 @@
 #include "simple_crypto.h"
 #include <stdint.h>
 #include <string.h>
+#include "host_messaging.h"
 
 
 /******************************** FUNCTION PROTOTYPES ********************************/
@@ -69,19 +70,26 @@ int encrypt_sym(uint8_t *plaintext, size_t len, uint8_t *key, uint8_t *ciphertex
 int decrypt_sym(uint8_t *ciphertext, size_t len, uint8_t *key, uint8_t *plaintext) {
     Aes ctx; // Context for decryption
     int result; // Library result
+    print_debug("here");
 
     // Ensure valid length
     if (len <= 0 || len % BLOCK_SIZE)
         return -1;
+    print_debug("ther");
 
     // Set the key for decryption
     result = wc_AesSetKey(&ctx, key, 16, NULL, AES_DECRYPTION);
+    result = wc_AesGcmSetKey(&ctx, key, 16);
     if (result != 0)
         return result; // Report error
 
+    print_debug("no error yet");
+
     // Decrypt each block
     for (int i = 0; i < len - 1; i += BLOCK_SIZE) {
+        print_debug("almost!");
         result = wc_AesDecryptDirect(&ctx, plaintext + i, ciphertext + i);
+        print_debug("Goood!");
         if (result != 0)
             return result; // Report error
     }

@@ -69,7 +69,8 @@ class Encoder:
 
 
         # I don't love sending this as an array of chars. We need to be very careful when decoding this...
-        return struct.pack("<sQ", cipher_text, timestamp)# channel, timestamp) + frame # formats here: https://docs.python.org/3/library/struct.html
+        # return struct.pack("<sQ", cipher_text, timestamp)# channel, timestamp) + frame # formats here: https://docs.python.org/3/library/struct.html
+        return struct.pack("<IQ", channel, timestamp) + cipher_text# channel, timestamp) + frame # formats here: https://docs.python.org/3/library/struct.html
 
 
 def main():

@@ -114,7 +114,8 @@ typedef struct {
 
 // This is used to track decoder subscriptions
 flash_entry_t decoder_status;
-
+bool has_latest_timestamp = false;
+timestamp_t latest_timestamp;
 
 /**********************************************************
  ******************* UTILITY FUNCTIONS ********************
@@ -232,11 +233,21 @@ int decode(pkt_len_t pkt_len, frame_packet_t *new_frame) {
     channel = new_frame->channel;
 
     // The reference design doesn't use the timestamp, but you may want to in your design
-    timestamp_t timestamp = new_frame->timestamp;
+    timestamp_t incoming_timestamp = new_frame->timestamp;
+    if (has_latest_timestamp == true && latest_timestamp >= incoming_timestamp) {
+        STATUS_LED_RED();
+        sprintf(
+            output_buf,
+            "Receiving old channel data.");
+        print_error(output_buf);
+        return -1;
+    }
 
     // Check that we are subscribed to the channel...
     print_debug("Checking subscription\n");
     if (is_subscribed(channel)) {
+        latest_timestamp = incoming_timestamp;
+        has_latest_timestamp = true;
         print_debug("Subscription Valid\n");
         /* The reference design doesn't need any extra work to decode, but your design likely will.
         *  Do any extra decoding here before returning the result to the host. */

@@ -70,7 +70,7 @@ class TV:
                     line += cur_byte
                 frame = json.loads(line)
                 channel = frame["channel"]
-                timestamp = frame["timestamp"]
+                timestamp = frame["timestamp"] # potential hacking tool - 4000000
                 encoded = binascii.a2b_hex(frame.pop("encoded"))
                 logger.debug(f"Received encoded ({channel}, {timestamp}): {encoded}")
 

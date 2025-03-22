@@ -334,6 +334,7 @@ void init() {
     }
 }
 
+/*
 void crypto_example(void) {
     // Example of how to utilize included simple_crypto.h
 
@@ -367,6 +368,7 @@ void crypto_example(void) {
     sprintf(output_buf, "Decrypted message: %s\n", decrypted);
     print_debug(output_buf);
 }
+*/
 
 /**********************************************************
  *********************** MAIN LOOP ************************
@@ -405,9 +407,8 @@ int main(void) {
         case LIST_MSG:
             STATUS_LED_CYAN();
 
-            // Run the crypto example
-            // TODO: Remove this from your design
-            crypto_example();
+            // Remove the below from your design
+            // crypto_example();
 
             list_channels();
             break;

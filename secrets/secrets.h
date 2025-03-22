@@ -1,4 +1,2 @@
-
-    extern char channels[3] = {1, 2, 3};
-    extern int secret_key_imported[16] = {129, 186, 203, 50, 132, 39, 232, 200, 178, 206, 57, 56, 130, 217, 171, 205};
-    
+extern char channels[3] = {1,3,4};
+extern int secret_key_imported[16] = {121,15,159,40,29,95,168,54,10,209,255,97,115,212,161,254};

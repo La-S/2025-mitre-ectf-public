@@ -13,11 +13,12 @@ Copyright: Copyright (c) 2025 The MITRE Corporation
 import argparse
 import json
 from pathlib import Path
+import secrets
 
 from loguru import logger
 
 
-def gen_secrets_json(channels: list[int]) -> bytes:
+def gen_secrets_json(channels: list[int], key_hex) -> bytes:
     """Generate the contents secrets file
 
     This will be passed to the Encoder, ectf25_design.gen_subscription, and the build
@@ -37,7 +38,7 @@ def gen_secrets_json(channels: list[int]) -> bytes:
     # The secrets file will never be shared with attackers
     secrets = {
         "channels": channels,
-        "aes_key":"81BACB328427E8C8B2CE393882D9ABCD"
+        "aes_key":str(key_hex).upper()
     }
 
     # NOTE: if you choose to use JSON for your file type, you will not be able to
@@ -46,7 +47,7 @@ def gen_secrets_json(channels: list[int]) -> bytes:
     return json.dumps(secrets).encode()
 
 
-def gen_secrets_header(channels: list[int]) -> bytes:
+def gen_secrets_header(channels: list[int], key_hex) -> bytes:
     """Generate the contents secrets file
 
     This will be passed to the Encoder, ectf25_design.gen_subscription, and the build
@@ -59,10 +60,16 @@ def gen_secrets_header(channels: list[int]) -> bytes:
     :returns: Contents of the secrets file
     """
 
-    h_file_contents = """
-    extern char channels[3] = {1, 2, 3};
-    extern int secret_key_imported[16] = {129, 186, 203, 50, 132, 39, 232, 200, 178, 206, 57, 56, 130, 217, 171, 205};
-    """
+    channels_line = "extern char channels[3] = {"+str(",".join(map(str, channels)))+"};"
+    
+    secret_numbers = list(bytearray.fromhex(key_hex))
+    secret_key_line = "extern int secret_key_imported[16] = {"+str(",".join(map(str, secret_numbers)))+"};"
+    
+    h_file_contents = channels_line + "\n"+secret_key_line
+    # """
+    # extern char channels[3] = {1, 2, 3};
+    # extern int secret_key_imported[16] = {129, 186, 203, 50, 132, 39, 232, 200, 178, 206, 57, 56, 130, 217, 171, 205};
+    # """
 
     return h_file_contents.encode()
 
@@ -100,14 +107,16 @@ def main():
     # Parse the command line arguments
     args = parse_args()
 
-    secrets_json = gen_secrets_json(args.channels)
+    key_hex = secrets.token_hex(16)
+
+    secrets_json = gen_secrets_json(args.channels, key_hex)
 
     # Open the file, erroring if the file exists unless the --force arg is provided
-    with open(str(args.secrets_folder)+"/secrets.h", "wb" if args.force else "xb") as f:
+    with open(str(args.secrets_folder)+"/secrets.json", "wb" if args.force else "xb") as f:
         # Dump the secrets to the file
         f.write(secrets_json)
 
-    secrets_h = gen_secrets_header(args.channels)
+    secrets_h = gen_secrets_header(args.channels, key_hex)
 
     # Open the file, erroring if the file exists unless the --force arg is provided
     with open(str(args.secrets_folder)+"/secrets.h", "wb" if args.force else "xb") as f:

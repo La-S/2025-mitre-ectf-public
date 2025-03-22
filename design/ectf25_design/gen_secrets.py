@@ -30,20 +30,11 @@ def gen_secrets_json(channels: list[int], key_hex) -> bytes:
 
     :returns: Contents of the secrets file
     """
-    # TODO: Update this function to generate any system-wide secrets needed by
-    #   your design
-
-    # Create the secrets object
-    # You can change this to generate any secret material
-    # The secrets file will never be shared with attackers
     secrets = {
         "channels": channels,
         "aes_key":str(key_hex).upper()
     }
 
-    # NOTE: if you choose to use JSON for your file type, you will not be able to
-    # store binary data, and must either use a different file type or encode the
-    # binary data to hex, base64, or another type of ASCII-only encoding
     return json.dumps(secrets).encode()
 
 
@@ -66,10 +57,6 @@ def gen_secrets_header(channels: list[int], key_hex) -> bytes:
     secret_key_line = "extern int secret_key_imported[16] = {"+str(",".join(map(str, secret_numbers)))+"};"
     
     h_file_contents = channels_line + "\n"+secret_key_line
-    # """
-    # extern char channels[3] = {1, 2, 3};
-    # extern int secret_key_imported[16] = {129, 186, 203, 50, 132, 39, 232, 200, 178, 206, 57, 56, 130, 217, 171, 205};
-    # """
 
     return h_file_contents.encode()
 

@@ -21,6 +21,7 @@
 #include "mxc_delay.h"
 #include "simple_flash.h"
 #include "host_messaging.h"
+#include "global_secrets.h"
 
 #include "simple_uart.h"
 
@@ -256,7 +257,7 @@ int decode(pkt_len_t pkt_len, frame_packet_t *new_frame) {
         print_debug("Subscription Valid\n");
         /* The reference design doesn't need any extra work to decode, but your design likely will.
         *  Do any extra decoding here before returning the result to the host. */
-        uint8_t key[KEY_SIZE] = {129, 186, 203, 50, 132, 39, 232, 200, 178, 206, 57, 56, 130, 217, 171, 205};
+        uint8_t key[KEY_SIZE] = secret_key_imported;
 
         // THIS SEEMS VERY INSECURE: sizeof(new_frame->data)
         int size_of_incoming_frame = sizeof(new_frame->data);

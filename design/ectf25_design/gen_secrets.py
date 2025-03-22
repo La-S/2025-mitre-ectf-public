@@ -17,7 +17,7 @@ from pathlib import Path
 from loguru import logger
 
 
-def gen_secrets(channels: list[int]) -> bytes:
+def gen_secrets_json(channels: list[int]) -> bytes:
     """Generate the contents secrets file
 
     This will be passed to the Encoder, ectf25_design.gen_subscription, and the build
@@ -46,6 +46,26 @@ def gen_secrets(channels: list[int]) -> bytes:
     return json.dumps(secrets).encode()
 
 
+def gen_secrets_header(channels: list[int]) -> bytes:
+    """Generate the contents secrets file
+
+    This will be passed to the Encoder, ectf25_design.gen_subscription, and the build
+    process of the decoder
+
+    :param channels: List of channel numbers that will be valid in this deployment.
+        Channel 0 is the emergency broadcast, which will always be valid and will
+        NOT be included in this list
+
+    :returns: Contents of the secrets file
+    """
+
+    h_file_contents = """
+    extern char channels[3] = {1, 2, 3};
+    extern int secret_key_imported[16] = {129, 186, 203, 50, 132, 39, 232, 200, 178, 206, 57, 56, 130, 217, 171, 205};
+    """
+
+    return h_file_contents.encode()
+
 def parse_args():
     """Define and parse the command line arguments
 
@@ -59,9 +79,9 @@ def parse_args():
         help="Force creation of secrets file, overwriting existing file",
     )
     parser.add_argument(
-        "secrets_file",
+        "secrets_folder",
         type=Path,
-        help="Path to the secrets file to be created",
+        help="Path to the secrets folder",
     )
     parser.add_argument(
         "channels",
@@ -74,28 +94,25 @@ def parse_args():
 
 
 def main():
-    """Main function of gen_secrets
-
-    You will likely not have to change this function
+    """
+    Main function of gen_secrets. We did change this function...
     """
     # Parse the command line arguments
     args = parse_args()
 
-    secrets = gen_secrets(args.channels)
-
-    # Print the generated secrets for your own debugging
-    # Attackers will NOT have access to the output of this, but feel free to remove
-    #
-    # NOTE: Printing sensitive data is generally not good security practice
-    logger.debug(f"Generated secrets: {secrets}")
+    secrets_json = gen_secrets_json(args.channels)
 
     # Open the file, erroring if the file exists unless the --force arg is provided
-    with open(args.secrets_file, "wb" if args.force else "xb") as f:
+    with open(str(args.secrets_folder)+"/secrets.h", "wb" if args.force else "xb") as f:
         # Dump the secrets to the file
-        f.write(secrets)
+        f.write(secrets_json)
 
-    # For your own debugging. Feel free to remove
-    logger.success(f"Wrote secrets to {str(args.secrets_file.absolute())}")
+    secrets_h = gen_secrets_header(args.channels)
+
+    # Open the file, erroring if the file exists unless the --force arg is provided
+    with open(str(args.secrets_folder)+"/secrets.h", "wb" if args.force else "xb") as f:
+        # Dump the secrets to the file
+        f.write(secrets_h)
 
 
 if __name__ == "__main__":

@@ -1,2 +1,2 @@
-extern char channels[3] = {1,3,4};
-extern int secret_key_imported[16] = {121,15,159,40,29,95,168,54,10,209,255,97,115,212,161,254};
+extern char channels[4] = {1,3,4,8};
+extern int secret_key_imported[16] = {28,19,139,190,146,251,108,26,143,228,221,231,243,169,42,178};

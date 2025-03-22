@@ -60,7 +60,7 @@ def gen_secrets_header(channels: list[int], key_hex) -> bytes:
     :returns: Contents of the secrets file
     """
 
-    channels_line = "extern char channels[3] = {"+str(",".join(map(str, channels)))+"};"
+    channels_line = "extern char channels["+str(len(channels))+"] = {"+str(",".join(map(str, channels)))+"};"
     
     secret_numbers = list(bytearray.fromhex(key_hex))
     secret_key_line = "extern int secret_key_imported[16] = {"+str(",".join(map(str, secret_numbers)))+"};"

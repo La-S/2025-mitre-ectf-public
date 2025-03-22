@@ -33,6 +33,7 @@ def gen_subscription(
     """
     # TODO: Update this function to provide a Decoder with whatever data it needs to
     #   subscribe to a new channel
+    # Lance's Note: This will likely consist of just encrypting things like we do in other cases...
 
     # Load the json of the secrets file
     secrets = json.loads(secrets)

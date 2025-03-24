@@ -18,7 +18,7 @@ import secrets
 from loguru import logger
 
 
-def gen_secrets_json(channels: list[int], key_hex) -> bytes:
+def gen_secrets(channels: list[int]) -> bytes:
     """Generate the contents secrets file
 
     This will be passed to the Encoder, ectf25_design.gen_subscription, and the build
@@ -30,26 +30,7 @@ def gen_secrets_json(channels: list[int], key_hex) -> bytes:
 
     :returns: Contents of the secrets file
     """
-    secrets = {
-        "channels": channels,
-        "aes_key":str(key_hex).upper()
-    }
-
-    return json.dumps(secrets).encode()
-
-
-def gen_secrets_header(channels: list[int], key_hex) -> bytes:
-    """Generate the contents secrets file
-
-    This will be passed to the Encoder, ectf25_design.gen_subscription, and the build
-    process of the decoder
-
-    :param channels: List of channel numbers that will be valid in this deployment.
-        Channel 0 is the emergency broadcast, which will always be valid and will
-        NOT be included in this list
-
-    :returns: Contents of the secrets file
-    """
+    key_hex = secrets.token_hex(16)
 
     channels_line = "extern char channels["+str(len(channels))+"] = {"+str(",".join(map(str, channels)))+"};"
     
@@ -57,6 +38,13 @@ def gen_secrets_header(channels: list[int], key_hex) -> bytes:
     secret_key_line = "extern int secret_key_imported[16] = {"+str(",".join(map(str, secret_numbers)))+"};"
     
     h_file_contents = channels_line + "\n"+secret_key_line
+
+    
+
+    python_secrets = "// {" + f'\"channels": {channels}, "aes_key":"{str(key_hex).upper()}"' + "}"
+
+    h_file_contents += "\n"+python_secrets
+    print(h_file_contents) # // {"channels": [1, 3, 4, 8], "aes_key": "1C138BBE92FB6C1A8FE4DDE7F3A92AB2"}
 
     return h_file_contents.encode()
 
@@ -73,9 +61,9 @@ def parse_args():
         help="Force creation of secrets file, overwriting existing file",
     )
     parser.add_argument(
-        "secrets_folder",
+        "secrets_file",
         type=Path,
-        help="Path to the secrets folder",
+        help="Path to the secrets file",
     )
     parser.add_argument(
         "channels",
@@ -94,21 +82,19 @@ def main():
     # Parse the command line arguments
     args = parse_args()
 
-    key_hex = secrets.token_hex(16)
-
-    secrets_json = gen_secrets_json(args.channels, key_hex)
+    secrets_h = gen_secrets(args.channels)
 
     # Open the file, erroring if the file exists unless the --force arg is provided
-    with open(str(args.secrets_folder)+"/secrets.json", "wb" if args.force else "xb") as f:
-        # Dump the secrets to the file
-        f.write(secrets_json)
-
-    secrets_h = gen_secrets_header(args.channels, key_hex)
-
-    # Open the file, erroring if the file exists unless the --force arg is provided
-    with open(str(args.secrets_folder)+"/secrets.h", "wb" if args.force else "xb") as f:
+    with open(args.secrets_file, "wb" if args.force else "xb") as f:
         # Dump the secrets to the file
         f.write(secrets_h)
+
+    # secrets_h = gen_secrets_header(args.channels, key_hex)
+
+    # # Open the file, erroring if the file exists unless the --force arg is provided
+    # with open(str(args.secrets_folder)+"/secrets.h", "wb" if args.force else "xb") as f:
+    #     # Dump the secrets to the file
+    #     f.write(secrets_h)
 
 
 if __name__ == "__main__":

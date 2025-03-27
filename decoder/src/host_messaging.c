@@ -53,7 +53,7 @@ void read_header(msg_header_t *hdr) {
         hdr->magic = uart_readbyte();
     }
     hdr->cmd = uart_readbyte();
-    read_bytes(&hdr->len, sizeof(hdr->len));
+    read_bytes(&hdr->len, sizeof(hdr->len), 6); // max size of 6 bytes....
 }
 
 /** @brief Receive an ACK from UART.

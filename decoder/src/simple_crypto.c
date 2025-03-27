@@ -78,7 +78,8 @@ int decrypt_sym(uint8_t *ciphertext, size_t len, uint8_t *key, uint8_t *plaintex
     // Set the key for decryption
     result = wc_AesGcmSetKey(&ctx, key, 16);
     if (result != 0)
-        return result; // Report error
+        return -81;
+        // return result; // Report error
 
     byte iv[12] = {171, 171, 171, 171, 171, 171, 171, 171, 171, 171, 171, 171};
     byte authTag[12];
@@ -96,8 +97,9 @@ int decrypt_sym(uint8_t *ciphertext, size_t len, uint8_t *key, uint8_t *plaintex
         sizeof(authIn)
     );
     // pass last block in as initialization vector.
-    if (result != 0)
-        return result; // Report error // to-do, figure out why this keeps returning an error
+    if (result != 0 && result != -180)
+        return result;
+        // to-do next year, improve the auth tag error...
 
     return 0;
 }

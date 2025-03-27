@@ -79,6 +79,7 @@ typedef struct {
     timestamp_t start_timestamp;
     timestamp_t end_timestamp;
     channel_id_t channel;
+    timestamp_t blah; // ignore, it's for making decryption easier...
 } subscription_update_packet_t;
 
 typedef struct {
@@ -188,10 +189,18 @@ int list_channels() {
  *
  *  @return 0 upon success.  -1 if error.
 */
-int update_subscription(pkt_len_t pkt_len, subscription_update_packet_t *update) {
+int update_subscription(pkt_len_t pkt_len, unsigned char *update) {
     int i;
+    subscription_update_packet_t decrypted[pkt_len];
 
-    if (update->channel == EMERGENCY_CHANNEL) {
+    int status = decrypt_sym(update, pkt_len, secret_key_imported, decrypted);
+    if (status == 0){
+        print_debug("success");
+    } else {
+        print_debug("fail");
+    }
+
+    if (decrypted->channel == EMERGENCY_CHANNEL) {
         STATUS_LED_RED();
         print_error("Failed to update subscription - cannot subscribe to emergency channel\n");
         return -1;
@@ -199,11 +208,11 @@ int update_subscription(pkt_len_t pkt_len, subscription_update_packet_t *update)
 
     // Find the first empty slot in the subscription array
     for (i = 0; i < MAX_CHANNEL_COUNT; i++) {
-        if (decoder_status.subscribed_channels[i].id == update->channel || !decoder_status.subscribed_channels[i].active) {
+        if (decoder_status.subscribed_channels[i].id == decrypted->channel || !decoder_status.subscribed_channels[i].active) {
             decoder_status.subscribed_channels[i].active = true;
-            decoder_status.subscribed_channels[i].id = update->channel;
-            decoder_status.subscribed_channels[i].start_timestamp = update->start_timestamp;
-            decoder_status.subscribed_channels[i].end_timestamp = update->end_timestamp;
+            decoder_status.subscribed_channels[i].id = decrypted->channel;
+            decoder_status.subscribed_channels[i].start_timestamp = decrypted->start_timestamp;
+            decoder_status.subscribed_channels[i].end_timestamp = decrypted->end_timestamp;
             break;
         }
     }
@@ -423,7 +432,7 @@ int main(void) {
         // Handle subscribe command
         case SUBSCRIBE_MSG:
             STATUS_LED_YELLOW();
-            update_subscription(pkt_len, (subscription_update_packet_t *)uart_buf);
+            update_subscription(pkt_len, (unsigned char *)uart_buf);
             break;
 
         // Handle bad command

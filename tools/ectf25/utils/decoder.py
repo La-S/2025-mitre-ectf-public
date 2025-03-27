@@ -144,6 +144,8 @@ class DecoderIntf:
             ectf25_design.gen_subscription
         :raises DecoderError: Error on subscribe failure
         """
+
+        # print("\nSubscription (hex):",subscription.hex())
         # send subscribe message
         msg = Message(Opcode.SUBSCRIBE, subscription)
         self.send_msg(msg)
@@ -276,5 +278,6 @@ class DecoderIntf:
         self._open()
         for packet in msg.packets():
             logger.debug(f"Sending packet {packet}")
+            logger.debug(f"Sending packet (hex) {packet.hex()}")
             self.ser.write(packet)
             self.get_ack()

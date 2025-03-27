@@ -14,6 +14,10 @@ import argparse
 import json
 from pathlib import Path
 import struct
+from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+from cryptography.hazmat.primitives.ciphers.aead import AESGCM
+from cryptography.hazmat.primitives.padding import _byte_padding_pad
+
 
 from loguru import logger
 
@@ -38,14 +42,30 @@ def gen_subscription(
     # Load the json of the secrets file
     secrets = secrets.splitlines()[2][3:] # get the third line and shave off the comment
     secrets = json.loads(secrets)
+    aes_key = bytes.fromhex(str(secrets["aes_key"]))
+    aesgcm = AESGCM(aes_key)
 
-    # You can use secrets generated using `gen_secrets` here like:
-    # secrets["some_secrets"]
-    # Which would return "EXAMPLE" in the reference design.
-    # Please note that the secrets are READ ONLY at this sage!
+    iv = bytes.fromhex(str("ABABABABABABABABABABABAB"))#  os.urandom(12)
+
+    data = struct.pack("<IQQIQ", device_id, start, end, channel, 0)
+    print(len(data))
+    # print(data.hex())
+
+    cipher_text = aesgcm.encrypt(iv, data, None)
+    # print(len(cipher_text) % 16)
+    # cipher_text += b'\x08'*(len(cipher_text) % 16)
+    print("CIPHER TEXT", cipher_text)
+    print(len(cipher_text))
+    print("CIPHER TEXT", cipher_text.hex())
+    print("CIPHER TEXT", len(cipher_text.hex()))
+
+    plaintext = aesgcm.decrypt(iv, cipher_text, None)
+    print(plaintext)
+    print("plain TEXT", plaintext.hex())
+    print(len(data))
 
     # Pack the subscription. This will be sent to the decoder with ectf25.tv.subscribe
-    return struct.pack("<IQQI", device_id, start, end, channel)
+    return cipher_text
 
 
 def parse_args():

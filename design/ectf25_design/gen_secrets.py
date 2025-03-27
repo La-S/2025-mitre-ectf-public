@@ -32,10 +32,10 @@ def gen_secrets(channels: list[int]) -> bytes:
     """
     key_hex = secrets.token_hex(16)
 
-    channels_line = "extern char channels["+str(len(channels))+"] = {"+str(",".join(map(str, channels)))+"};"
+    channels_line = "char channels["+str(len(channels))+"] = {"+str(",".join(map(str, channels)))+"};"
     
     secret_numbers = list(bytearray.fromhex(key_hex))
-    secret_key_line = "extern int secret_key_imported[16] = {"+str(",".join(map(str, secret_numbers)))+"};"
+    secret_key_line = "uint8_t secret_key_imported[16] = {"+str(",".join(map(str, secret_numbers)))+"};"
     
     h_file_contents = channels_line + "\n"+secret_key_line
 

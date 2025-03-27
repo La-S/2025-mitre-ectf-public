@@ -271,7 +271,10 @@ int decode(pkt_len_t pkt_len, frame_packet_t *new_frame) {
 
         // THIS SEEMS VERY INSECURE: sizeof(new_frame->data)
         int size_of_incoming_frame = sizeof(new_frame->data);
-        uint8_t decrypted[size_of_incoming_frame]; // Seems insecure. Maybe make it be 64, then trim it later?
+        if (size_of_incoming_frame > 256) {
+            size_of_incoming_frame = 256;
+        }
+        uint8_t decrypted[size_of_incoming_frame];
 
         int status = decrypt_sym(new_frame->data, size_of_incoming_frame, secret_key_imported, decrypted);
         if (status == 0){

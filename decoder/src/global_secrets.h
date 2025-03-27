@@ -1,3 +1,3 @@
-extern char channels[3] = {1,3,4};
-extern int secret_key_imported[16] = {184,95,127,183,219,185,122,154,18,84,194,192,8,253,223,63};
-// {"channels": [1, 3, 4], "aes_key":"B85F7FB7DBB97A9A1254C2C008FDDF3F"}
+extern char channels[4] = {1,3,4,8};
+extern int secret_key_imported[16] = {253,255,22,24,172,108,238,68,232,95,108,5,163,82,218,188};
+// {"channels": [1, 3, 4, 8], "aes_key":"FDFF1618AC6CEE44E85F6C05A352DABC"}

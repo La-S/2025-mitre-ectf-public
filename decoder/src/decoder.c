@@ -257,14 +257,14 @@ int decode(pkt_len_t pkt_len, frame_packet_t *new_frame) {
         print_debug("Subscription Valid\n");
         /* The reference design doesn't need any extra work to decode, but your design likely will.
         *  Do any extra decoding here before returning the result to the host. */
-        uint8_t key[KEY_SIZE];
-        key = secret_key_imported;
+        // uint8_t key[KEY_SIZE];
+        // key = secret_key_imported;
 
         // THIS SEEMS VERY INSECURE: sizeof(new_frame->data)
         int size_of_incoming_frame = sizeof(new_frame->data);
         uint8_t decrypted[size_of_incoming_frame]; // Seems insecure. Maybe make it be 64, then trim it later?
 
-        int status = decrypt_sym(new_frame->data, size_of_incoming_frame, key, decrypted);
+        int status = decrypt_sym(new_frame->data, size_of_incoming_frame, secret_key_imported, decrypted);
         if (status == 0){
             print_debug("success");
             char output_buf[128] = {0};

@@ -36,6 +36,7 @@ def gen_subscription(
     # Lance's Note: This will likely consist of just encrypting things like we do in other cases...
 
     # Load the json of the secrets file
+    secrets = secrets.splitlines()[2][3:] # get the third line and shave off the comment
     secrets = json.loads(secrets)
 
     # You can use secrets generated using `gen_secrets` here like:

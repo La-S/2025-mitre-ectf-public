@@ -276,10 +276,10 @@ int decode(pkt_len_t pkt_len, frame_packet_t *new_frame) {
         int status = decrypt_sym(new_frame->data, size_of_incoming_frame, secret_key_imported, decrypted);
         if (status == 0){
             print_debug("success");
-            char output_buf[128] = {0};
-            sprintf(output_buf, "Decrypted message: %s\n", decrypted);
-            print_debug(output_buf);
-            print_debug((char *) decrypted);
+            // char output_buf[128] = {0};
+            // sprintf(output_buf, "Decrypted message: %s\n", decrypted);
+            // print_debug(output_buf);
+            // print_debug((char *) decrypted);
         } else {
             print_debug("fail");
         }
@@ -387,6 +387,7 @@ void crypto_example(void) {
 int main(void) {
     char output_buf[128] = {0};
     uint8_t uart_buf[100];
+    int buf_len = 100;
     msg_type_t cmd;
     int result;
     uint16_t pkt_len;
@@ -402,7 +403,7 @@ int main(void) {
 
         STATUS_LED_GREEN();
 
-        result = read_packet(&cmd, uart_buf, &pkt_len);
+        result = read_packet(&cmd, uart_buf, &pkt_len, buf_len);
 
         if (result < 0) {
             STATUS_LED_ERROR();

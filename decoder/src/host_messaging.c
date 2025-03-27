@@ -23,11 +23,11 @@
  * 
  *  @return 0 on success. A negative value on error.
 */
-int read_bytes(void *buf, uint16_t len) {
+int read_bytes(void *buf, uint16_t len, int buf_len) {
     int result;
     int i;
 
-    for (i = 0; i < len; i++) {
+    for (i = 0; i < len && i < buf_len; i++) {
         if (i % 256 == 0 && i != 0) { // Send an ACK after receiving 256 bytes
             write_ack();
         }
@@ -172,10 +172,11 @@ int write_packet(msg_type_t type, const void *buf, uint16_t len) {
  *  @param cmd A pointer to the resulting opcode of the packet. Must not be null.
  *  @param buf A pointer to a buffer to store the incoming packet. Can be null.
  *  @param len A pointer to the resulting length of the packet. Can be null.
+ *  @param buf_len The size of 'buf'. Used as an extra precaution to prevent over-writing...
  * 
  *  @return 0 on success, a negative number on failure
 */
-int read_packet(msg_type_t* cmd, void *buf, uint16_t *len) {
+int read_packet(msg_type_t* cmd, void *buf, uint16_t *len, int buf_len) {
     msg_header_t header = {0};
 
     // cmd must be a valid pointer
@@ -194,7 +195,7 @@ int read_packet(msg_type_t* cmd, void *buf, uint16_t *len) {
     if (header.cmd != ACK_MSG) {
         write_ack();  // ACK the header
         if (header.len && buf != NULL) {
-            if (read_bytes(buf, header.len) < 0) {
+            if (read_bytes(buf, header.len, buf_len) < 0) {
                 return -1;
             }
         }

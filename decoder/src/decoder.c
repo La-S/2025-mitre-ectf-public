@@ -257,7 +257,8 @@ int decode(pkt_len_t pkt_len, frame_packet_t *new_frame) {
         print_debug("Subscription Valid\n");
         /* The reference design doesn't need any extra work to decode, but your design likely will.
         *  Do any extra decoding here before returning the result to the host. */
-        uint8_t key[KEY_SIZE] = secret_key_imported;
+        uint8_t key[KEY_SIZE];
+        key = secret_key_imported;
 
         // THIS SEEMS VERY INSECURE: sizeof(new_frame->data)
         int size_of_incoming_frame = sizeof(new_frame->data);

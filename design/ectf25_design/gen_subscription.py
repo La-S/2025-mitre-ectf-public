@@ -47,7 +47,7 @@ def gen_subscription(
     iv = bytes.fromhex(str("ABABABABABABABABABABABAB"))#  os.urandom(12)
 
     data = struct.pack("<IQQIQ", device_id, start, end, channel, 0) # i is 4 bits, Q is 8 bits
-    print(len(data))
+    # print(len(data))
     # print(data.hex())
 
     cipher_text = aesgcm.encrypt(iv, data, None)
@@ -56,15 +56,15 @@ def gen_subscription(
     # AEADDecryptionContext.finalize_with_tag
     # print(len(cipher_text) % 16)
     # cipher_text += b'\x08'*(len(cipher_text) % 16)
-    print("CIPHER TEXT", cipher_text)
-    print(len(cipher_text))
-    print("CIPHER TEXT", cipher_text.hex())
-    print("CIPHER TEXT", len(cipher_text.hex()))
+    # print("CIPHER TEXT", cipher_text)
+    # print(len(cipher_text))
+    # print("CIPHER TEXT", cipher_text.hex())
+    # print("CIPHER TEXT", len(cipher_text.hex()))
 
     plaintext = aesgcm.decrypt(iv, cipher_text, None)
-    print(plaintext)
-    print("plain TEXT", plaintext.hex())
-    print(len(data))
+    # print(plaintext)
+    # print("plain TEXT", plaintext.hex())
+    # print(len(data))
 
     # Pack the subscription. This will be sent to the decoder with ectf25.tv.subscribe
     return cipher_text

@@ -66,12 +66,12 @@ class Encoder:
         data = struct.pack("<IQ", channel, timestamp) + frame
         iv = bytes.fromhex(str("ABABABABABABABABABABABAB"))#  os.urandom(12)
         cipher_text = self.aesgcm.encrypt(iv, data, None)
-        print("CIPHER TEXT", cipher_text)
-        print("CIPHER TEXT", cipher_text.hex())
-        logger.warning("CipherText: ", cipher_text)
+        # print("CIPHER TEXT", cipher_text)
+        # print("CIPHER TEXT", cipher_text.hex())
+        # logger.warning("CipherText: ", cipher_text)
         plaintext = self.aesgcm.decrypt(iv, cipher_text, None)
-        print(plaintext)
-        print(len(frame))
+        # print(plaintext)
+        # print(len(frame))
 
         # cipher_text = self.aesecb.encrypt()
 

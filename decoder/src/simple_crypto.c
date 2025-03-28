@@ -67,9 +67,20 @@ int encrypt_sym(uint8_t *plaintext, size_t len, uint8_t *key, uint8_t *ciphertex
  *
  * @return 0 on success, -1 on bad length, other non-zero for other error
  */
-int decrypt_sym(uint8_t *ciphertext, size_t len, uint8_t *key, uint8_t *plaintext) {
+int decrypt_sym(uint8_t *ciphertextWithTag, size_t len, uint8_t *key, uint8_t *plaintext) {
     Aes ctx; // Context for decryption
     int result; // Library result
+
+    uint8_t ciphertext[len-16];
+    uint8_t tag[16];
+
+    for (int i = 0; i < len; i++) {
+        if (i < len-16) {
+            ciphertext[i] = ciphertextWithTag[i];
+        } else {
+            tag[i-len+16] = ciphertextWithTag[i];
+        }
+    }
 
     // Ensure valid length
     if (len <= 0 || len % BLOCK_SIZE)
@@ -82,24 +93,22 @@ int decrypt_sym(uint8_t *ciphertext, size_t len, uint8_t *key, uint8_t *plaintex
         // return result; // Report error
 
     byte iv[12] = {171, 171, 171, 171, 171, 171, 171, 171, 171, 171, 171, 171};
-    byte authTag[12];
     byte authIn[12];
     result =  wc_AesGcmDecrypt(
         &ctx,
         plaintext,
         ciphertext,
-        len,
+        len-16,
         iv,
         12,
-        authTag,
-        sizeof(authTag),
+        tag,
+        sizeof(tag),
         authIn,
-        sizeof(authIn)
+        0
     );
     // pass last block in as initialization vector.
-    if (result != 0 && result != -180)
+    if (result != 0)
         return result;
-        // to-do next year, improve the auth tag error...
 
     return 0;
 }

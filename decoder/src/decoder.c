@@ -197,7 +197,8 @@ int update_subscription(pkt_len_t pkt_len, unsigned char *update) {
     if (status == 0){
         print_debug("success");
     } else {
-        print_debug("fail");
+        print_debug("Decryption failed!");
+        return -1;
     }
 
     if (decrypted->channel == EMERGENCY_CHANNEL) {
@@ -290,7 +291,8 @@ int decode(pkt_len_t pkt_len, frame_packet_t *new_frame) {
             // print_debug(output_buf);
             // print_debug((char *) decrypted);
         } else {
-            print_debug("fail");
+            print_debug("Decryption failed!");
+            return -1;
         }
 
         uint8_t decrypted_unpadded[frame_size];

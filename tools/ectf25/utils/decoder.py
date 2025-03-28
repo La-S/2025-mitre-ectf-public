@@ -19,6 +19,7 @@ from loguru import logger
 from serial import Serial
 from serial.serialutil import SerialTimeoutException
 
+
 MAGIC = b"%"
 BLOCK_LEN = 256
 

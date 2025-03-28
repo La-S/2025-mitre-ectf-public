@@ -14,7 +14,6 @@ import argparse
 import json
 from pathlib import Path
 import struct
-from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 from cryptography.hazmat.primitives.padding import _byte_padding_pad
 
@@ -52,6 +51,9 @@ def gen_subscription(
     # print(data.hex())
 
     cipher_text = aesgcm.encrypt(iv, data, None)
+    # see other cipher algorithms down below....
+
+    # AEADDecryptionContext.finalize_with_tag
     # print(len(cipher_text) % 16)
     # cipher_text += b'\x08'*(len(cipher_text) % 16)
     print("CIPHER TEXT", cipher_text)
@@ -126,3 +128,22 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+
+# also could do:
+
+#  encryptor = Cipher(
+#         algorithms.AES(key),
+#         modes.GCM(iv),
+#     ).encryptor()
+
+#     # associated_data will be authenticated but not encrypted,
+#     # it must also be passed in on decryption.
+#     encryptor.authenticate_additional_data(associated_data)
+
+#     # Encrypt the plaintext and get the associated ciphertext.
+#     # GCM does not require padding.
+#     ciphertext = encryptor.update(plaintext) + encryptor.finalize()
+
+#     return (iv, ciphertext, encryptor.tag)

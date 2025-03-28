@@ -197,7 +197,7 @@ int update_subscription(pkt_len_t pkt_len, unsigned char *update) {
     if (status == 0){
         print_debug("success");
     } else {
-        print_debug("Decryption failed!");
+        print_error("Decryption failed!");
         return -1;
     }
 
@@ -258,7 +258,7 @@ int decode(pkt_len_t pkt_len, unsigned char *encrypted) {
     if (status == 0){
         print_debug("success");
     } else {
-        print_debug("Decryption failed!");
+        print_error("Decryption failed!");
         // char output_buf[128] = {0};
         // sprintf(output_buf, "error: %d\n", status);
         // print_debug(output_buf);

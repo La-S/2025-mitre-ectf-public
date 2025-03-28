@@ -47,7 +47,7 @@ def gen_subscription(
 
     iv = bytes.fromhex(str("ABABABABABABABABABABABAB"))#  os.urandom(12)
 
-    data = struct.pack("<IQQIQ", device_id, start, end, channel, 0)
+    data = struct.pack("<IQQIQ", device_id, start, end, channel, 0) # i is 4 bits, Q is 8 bits
     print(len(data))
     # print(data.hex())
 

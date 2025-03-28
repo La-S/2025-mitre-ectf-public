@@ -206,6 +206,12 @@ int update_subscription(pkt_len_t pkt_len, unsigned char *update) {
         return -1;
     }
 
+    if (decrypted->decoder_id != DECODER_ID) {
+        STATUS_LED_RED();
+        print_error("Bad Decoder Id\n");
+        return -1;
+    }
+
     // Find the first empty slot in the subscription array
     for (i = 0; i < MAX_CHANNEL_COUNT; i++) {
         if (decoder_status.subscribed_channels[i].id == decrypted->channel || !decoder_status.subscribed_channels[i].active) {

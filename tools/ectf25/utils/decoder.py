@@ -280,5 +280,10 @@ class DecoderIntf:
         for packet in msg.packets():
             logger.debug(f"Sending packet {packet}")
             logger.debug(f"Sending packet (hex) {packet.hex()}")
+            # logger.debug(f"Sending packet (hex) {to_bytes(packet)}")
+
+            # packet_new = packet[:31] + b'3' + packet[32:]
+            # packet[32] = 0x43
+            # logger.debug(f"Sending packet (hex) {packet_new.hex()}")
             self.ser.write(packet)
             self.get_ack()

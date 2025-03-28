@@ -62,8 +62,10 @@ class Encoder:
         #  security requirements
 
         # when we want to get fancy, we can use this...
+
+        data = struct.pack("<IQ", channel, timestamp) + frame
         iv = bytes.fromhex(str("ABABABABABABABABABABABAB"))#  os.urandom(12)
-        cipher_text = self.aesgcm.encrypt(iv, frame, None)
+        cipher_text = self.aesgcm.encrypt(iv, data, None)
         print("CIPHER TEXT", cipher_text)
         print("CIPHER TEXT", cipher_text.hex())
         logger.warning("CipherText: ", cipher_text)
@@ -76,7 +78,7 @@ class Encoder:
 
         # I don't love sending this as an array of chars. We need to be very careful when decoding this...
         # return struct.pack("<sQ", cipher_text, timestamp)# channel, timestamp) + frame # formats here: https://docs.python.org/3/library/struct.html
-        return struct.pack("<IQ", channel, timestamp) + cipher_text# channel, timestamp) + frame # formats here: https://docs.python.org/3/library/struct.html
+        return cipher_text# channel, timestamp) + frame # formats here: https://docs.python.org/3/library/struct.html
 
 
 def main():

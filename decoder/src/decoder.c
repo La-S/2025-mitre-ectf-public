@@ -245,12 +245,26 @@ int update_subscription(pkt_len_t pkt_len, unsigned char *update) {
  *
  *  @return 0 if successful.  -1 if data is from unsubscribed channel.
 */
-int decode(pkt_len_t pkt_len, frame_packet_t *new_frame) {
+int decode(pkt_len_t pkt_len, unsigned char *encrypted) {
     char output_buf[128] = {0};
     uint16_t frame_size;
     channel_id_t channel;
+    frame_packet_t new_frame[pkt_len];
 
     // Frame size is the size of the packet minus the size of non-frame elements
+
+
+    int status = decrypt_sym(encrypted, pkt_len, secret_key_imported, new_frame);
+        if (status == 0){
+            print_debug("success");
+        } else {
+            print_debug("Decryption failed!");
+            char output_buf[128] = {0};
+            sprintf(output_buf, "error: %d\n", status);
+            print_debug(output_buf);
+            return -1;
+        }
+
     frame_size = pkt_len - (sizeof(new_frame->channel) + sizeof(new_frame->timestamp)) - TAG_SIZE;
     channel = new_frame->channel;
 
@@ -271,33 +285,11 @@ int decode(pkt_len_t pkt_len, frame_packet_t *new_frame) {
         latest_timestamp = incoming_timestamp;
         has_latest_timestamp = true;
         print_debug("Subscription Valid\n");
-        /* The reference design doesn't need any extra work to decode, but your design likely will.
-        *  Do any extra decoding here before returning the result to the host. */
-        // uint8_t key[KEY_SIZE];
-        // key = secret_key_imported;
 
-        // THIS SEEMS VERY INSECURE: sizeof(new_frame->data)
-        int size_of_incoming_frame = sizeof(new_frame->data);
-        if (size_of_incoming_frame > 256) {
-            size_of_incoming_frame = 256;
-        }
-        uint8_t decrypted[size_of_incoming_frame];
-
-        int status = decrypt_sym(new_frame->data, size_of_incoming_frame, secret_key_imported, decrypted);
-        if (status == 0){
-            print_debug("success");
-            // char output_buf[128] = {0};
-            // sprintf(output_buf, "Decrypted message: %s\n", decrypted);
-            // print_debug(output_buf);
-            // print_debug((char *) decrypted);
-        } else {
-            print_debug("Decryption failed!");
-            return -1;
-        }
 
         uint8_t decrypted_unpadded[frame_size];
         for(int i = 0; i < frame_size; i++) {
-            decrypted_unpadded[i] = decrypted[i];
+            decrypted_unpadded[i] = new_frame->data[i];
         }
 
         write_packet(DECODE_MSG, decrypted_unpadded, frame_size);
@@ -438,7 +430,7 @@ int main(void) {
         // Handle decode command
         case DECODE_MSG:
             STATUS_LED_PURPLE();
-            decode(pkt_len, (frame_packet_t *)uart_buf);
+            decode(pkt_len, (unsigned char *)uart_buf);
             break;
 
         // Handle subscribe command

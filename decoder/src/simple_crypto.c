@@ -81,10 +81,13 @@ int decrypt_sym(uint8_t *ciphertextWithTag, size_t len, uint8_t *key, uint8_t *p
             tag[i-len+16] = ciphertextWithTag[i];
         }
     }
+    print_hex_debug(ciphertextWithTag, len);
+    print_hex_debug(ciphertext, len-16);
+    print_hex_debug(tag, 16);
 
     // Ensure valid length
-    if (len <= 0 || len % BLOCK_SIZE)
-        return -1;
+    // if (len <= 0 || len % BLOCK_SIZE)
+    //     return -1; // this is no longer needed I think...
 
     // Set the key for decryption
     result = wc_AesGcmSetKey(&ctx, key, 16);

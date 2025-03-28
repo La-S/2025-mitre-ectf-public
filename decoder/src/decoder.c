@@ -255,15 +255,15 @@ int decode(pkt_len_t pkt_len, unsigned char *encrypted) {
 
 
     int status = decrypt_sym(encrypted, pkt_len, secret_key_imported, new_frame);
-        if (status == 0){
-            print_debug("success");
-        } else {
-            print_debug("Decryption failed!");
-            char output_buf[128] = {0};
-            sprintf(output_buf, "error: %d\n", status);
-            print_debug(output_buf);
-            return -1;
-        }
+    if (status == 0){
+        print_debug("success");
+    } else {
+        print_debug("Decryption failed!");
+        // char output_buf[128] = {0};
+        // sprintf(output_buf, "error: %d\n", status);
+        // print_debug(output_buf);
+        return -1;
+    }
 
     frame_size = pkt_len - (sizeof(new_frame->channel) + sizeof(new_frame->timestamp)) - TAG_SIZE;
     channel = new_frame->channel;
